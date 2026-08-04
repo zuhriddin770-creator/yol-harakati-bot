@@ -22,9 +22,9 @@ threading.Thread(target=run_dummy_server, daemon=True).start()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# Belgilar ma'lumotlar bazasi (rasm va izohlari bilan)
+# Belgilar bazasi (callback_data orqali bog'langan)
 ROAD_SIGNS = {
-    "🛑 Taqiqlovchi belgilar": [
+    "taqiqlovchi": [
         {
             "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/3.1_Uzbekistan_road_sign.svg/500px-3.1_Uzbekistan_road_sign.svg.png",
             "caption": "🔴 *3.1 - Kirish taqiqlangan*\n\nUshbu yo'nalishda barcha transport vositalarining kirishi taqiqlanadi."
@@ -34,13 +34,13 @@ ROAD_SIGNS = {
             "caption": "🚫 *3.2 - Harakatlanish taqiqlangan*\n\nBarcha transport vositalarining harakatlanishi taqiqlanadi."
         }
     ],
-    "⚠️ Ogohlantiruvchi belgilar": [
+    "ogohlantiruvchi": [
         {
             "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/1.1_Uzbekistan_road_sign.svg/500px-1.1_Uzbekistan_road_sign.svg.png",
             "caption": "⚠️ *1.1 - Shlagbaumli temir yo'l o'tish joyi*\n\nOldinda shlagbaum bilan jihozlangan temir yo'l o'tish joyi borligini bildiradi."
         }
     ],
-    "🔹 Imtiyozli belgilar": [
+    "imtiyozli": [
         {
             "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/2.1_Uzbekistan_road_sign.svg/500px-2.1_Uzbekistan_road_sign.svg.png",
             "caption": "🔷 *2.1 - Asosiy yo'l*\n\nHaydovchiga tartiblashtirilmagan chorrahalardan birinchi bo'lib o'tish huquqini beradi."
@@ -48,19 +48,19 @@ ROAD_SIGNS = {
     ]
 }
 
-# Menyular
+# 1. Asosiy menyu (Reply Keyboard)
 def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton("⚠️ Yo'l belgilari"))
     return markup
 
-def belgilar_menu():
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-    btn1 = types.KeyboardButton("🛑 Taqiqlovchi belgilar")
-    btn2 = types.KeyboardButton("⚠️ Ogohlantiruvchi belgilar")
-    btn3 = types.KeyboardButton("🔹 Imtiyozli belgilar")
-    btn4 = types.KeyboardButton("⬅️ Ortga (Bosh menyu)")
-    markup.add(btn1, btn2, btn3, btn4)
+# 2. Belgilar menyusi (Inline Keyboard - Xatosiz ishlaydi)
+def belgilar_inline_menu():
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    btn1 = types.InlineKeyboardButton("🛑 Taqiqlovchi belgilar", callback_data="taqiqlovchi")
+    btn2 = types.InlineKeyboardButton("⚠️ Ogohlantiruvchi belgilar", callback_data="ogohlantiruvchi")
+    btn3 = types.InlineKeyboardButton("🔹 Imtiyozli belgilar", callback_data="imtiyozli")
+    markup.add(btn1, btn2, btn3)
     return markup
 
 # Handlers
@@ -72,24 +72,31 @@ def start(message):
         reply_markup=main_menu()
     )
 
+# Text xabarlarni tutish
 @bot.message_handler(func=lambda message: True)
-def handle_all_messages(msg):
-    text = msg.text
+def handle_text(msg):
+    if "Yo'l belgilari" in msg.text:
+        bot.send_message(
+            msg.chat.id, 
+            "Kerakli bo'limni tanlang:", 
+            reply_markup=belgilar_inline_menu()
+        )
 
-    if text == "⚠️ Yo'l belgilari":
-        bot.send_message(msg.chat.id, "Yo'l belgilari bo'limini tanlang:", reply_markup=belgilar_menu())
-
-    elif text in ROAD_SIGNS:
-        # Tanlangan bo'limdagi barcha belgilarni rasm va matn bilan yuborish
-        for sign in ROAD_SIGNS[text]:
+# Inline tugmalar bosilganda rasmlarni yuborish
+@bot.callback_query_handler(func=lambda call: True)
+def handle_callback(call):
+    category = call.data
+    if category in ROAD_SIGNS:
+        # Tugma bosilganda Telegram'dagi soat belgisi yo'qolishi uchun
+        bot.answer_callback_query(call.id)
+        
+        # Rasmlarni ketma-ket yuborish
+        for sign in ROAD_SIGNS[category]:
             bot.send_photo(
-                msg.chat.id,
+                call.message.chat.id,
                 photo=sign["photo"],
                 caption=sign["caption"],
                 parse_mode="Markdown"
             )
-
-    elif text == "⬅️ Ortga (Bosh menyu)":
-        bot.send_message(msg.chat.id, "Bosh menyu:", reply_markup=main_menu())
 
 bot.polling(none_stop=True)
