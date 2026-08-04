@@ -1,8 +1,24 @@
 import os
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import telebot
 from telebot import types
 
-# Render'dagi Environment Variable'dan tokenni olish
+# Render port xatosini aylanib o'tish uchun soxta server
+class SimpleHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot ishlayapti!")
+
+def run_dummy_server():
+    port = int(os.environ.get("PORT", 8080))
+    server = HTTPServer(('0.0.0.0', port), SimpleHandler)
+    server.serve_forever()
+
+threading.Thread(target=run_dummy_server, daemon=True).start()
+
+# Bot kodi
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -13,7 +29,6 @@ def welcome(message):
     btn2 = types.KeyboardButton("📚 Qoidalar kitobi")
     btn3 = types.KeyboardButton("📝 Imtihon testlari")
     btn4 = types.KeyboardButton("💵 Jarimalar miqdori")
-    
     markup.add(btn1, btn2)
     markup.add(btn3, btn4)
 
