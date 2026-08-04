@@ -38,9 +38,18 @@ def handle_menu(message):
         
     elif message.text == "📝 Imtihon testlari":
         bot.send_message(message.chat.id, "Bilimingizni sinash uchun testlar tizimi tez orada ishga tushadi.")
-        
-    elif message.text == "💵 Jarimalar miqdori":
-        bot.send_message(message.chat.id, "Bu yerda eng ko'p uchraydigan qoidabuzarliklar va jarimalar ro'yxati bo'ladi.")
+            elif message.text == "💵 Jarimalar miqdori":
+        jarimalar_matni = (
+            "⚠️ **Ko'p uchraydigan jarimalar miqdori (2026-yil):**\n\n"
+            "• **Xavfsizlik kamarini taqmaslik:** 187 500 so'm\n"
+            "• **Tezlikni oshirish (+20 km/soatgacha):** 375 000 so'm\n"
+            "• **Qizil chiroqdan o'tish:** 750 000 so'm\n"
+            "• **Telefon yordamida gaplashish:** 1 125 000 so'm\n"
+            "• **Hujjatlarsiz mashina boshqarish:** 1 875 000 so'm\n"
+            "• **Mast holatda rulga o'tish:** 9 375 000 so'm va 1.5 yildan 3 yilgacha haydash huquqidan mahrum qilish."
+        )
+        bot.send_message(message.chat.id, jarimalar_matni, parse_mode="Markdown")
 
+    
 # 3. Bot o'chib qolmasdan, har soniyada yangi xabarlarni tekshirib turishi uchun buyruq
 bot.infinity_polling()
