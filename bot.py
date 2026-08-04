@@ -4,7 +4,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import telebot
 from telebot import types
 
-# Render port xatosini aylanib o'tish uchun soxta server
+# Render uchun soxta server
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -22,19 +22,26 @@ threading.Thread(target=run_dummy_server, daemon=True).start()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# Menyular
 def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("⚠️ Yo'l belgilari", "📚 Qoidalar kitobi")
-    markup.add("📝 Imtihon testlari", "💵 Jarimalar miqdori")
+    btn1 = types.KeyboardButton("⚠️ Yo'l belgilari")
+    btn2 = types.KeyboardButton("📚 Qoidalar kitobi")
+    btn3 = types.KeyboardButton("📝 Imtihon testlari")
+    btn4 = types.KeyboardButton("💵 Jarimalar miqdori")
+    markup.add(btn1, btn2)
+    markup.add(btn3, btn4)
     return markup
 
 def belgilar_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("🔴 Taqiqlovchi belgilar")
-    markup.add("⚠️ Ogohlantiruvchi belgilar")
-    markup.add("🔹 Imtiyozli belgilar")
-    markup.add("⬅️ Ortga (Bosh menyu)")
+    btn1 = types.KeyboardButton("🔴 Taqiqlovchi belgilar")
+    btn2 = types.KeyboardButton("⚠️ Ogohlantiruvchi belgilar")
+    btn3 = types.KeyboardButton("🔹 Imtiyozli belgilar")
+    btn4 = types.KeyboardButton("⬅️ Ortga (Bosh menyu)")
+    markup.add(btn1)
+    markup.add(btn2)
+    markup.add(btn3)
+    markup.add(btn4)
     return markup
 
 @bot.message_handler(commands=['start'])
@@ -51,19 +58,16 @@ def handle_menu(message):
         bot.send_message(message.chat.id, "Yo'l belgilari bo'limini tanlang:", reply_markup=belgilar_menu())
         
     elif message.text == "🔴 Taqiqlovchi belgilar":
-        # 3.1 G'isht belgisi rasmi va matni
         photo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Road_sign_3.1.svg/500px-Road_sign_3.1.svg.png"
         caption = "<b>3.1 - Kirish taqiqlangan ('G'isht')</b>\n\nBarcha transport vositalarining kirishini taqiqlaydi."
         bot.send_photo(message.chat.id, photo_url, caption=caption, parse_mode="HTML")
         
     elif message.text == "⚠️ Ogohlantiruvchi belgilar":
-        # Piyodalar o'tish joyi rasmi va matni
         photo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Road_sign_1.22.svg/500px-Road_sign_1.22.svg.png"
         caption = "<b>1.22 - Piyodalar o'tish joyi</b>\n\nPiyodalar o'tish joyiga yaqinlashayotganingiz haqida ogohlantiradi."
         bot.send_photo(message.chat.id, photo_url, caption=caption, parse_mode="HTML")
 
     elif message.text == "🔹 Imtiyozli belgilar":
-        # STOP belgisi rasmi va matni
         photo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Road_sign_2.5.svg/500px-Road_sign_2.5.svg.png"
         caption = "<b>2.5 - To'xtamay o'tish taqiqlangan (STOP)</b>\n\nTo'xtash chizig'i yoki belgi oldida to'xtamasdan harakatlanish taqiqlanadi."
         bot.send_photo(message.chat.id, photo_url, caption=caption, parse_mode="HTML")
