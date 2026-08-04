@@ -3,7 +3,7 @@ from telebot import types
 
 # 🔴 DIQQAT: "TOKEN_KODINI_SHU_YERGA_YOZING" o'rniga @BotFather'dan olgan tokeningizni qo'ying!
 BOT_TOKEN = "TOKEN_KODINI_SHU_YERGA_YOZING"
-bot = telebot.TeleBot(BOT_TOKEN
+bot = telebot.TeleBot(BOT_TOKEN)
 # 1. Foydalanuvchi botga kirib /start bosganida ishlaydigan bo'lim
 @bot.message_handler(commands=['start'])
 def welcome(message):
