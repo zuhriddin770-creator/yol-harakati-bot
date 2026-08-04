@@ -4,7 +4,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import telebot
 from telebot import types
 
-# Render uchun soxta server (Port xatosi bermasligi uchun)
+# Render port xatosini aylanib o'tish uchun soxta server
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -22,28 +22,19 @@ threading.Thread(target=run_dummy_server, daemon=True).start()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# Asosiy menyu
+# Menyular
 def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton("⚠️ Yo'l belgilari")
-    btn2 = types.KeyboardButton("📚 Qoidalar kitobi")
-    btn3 = types.KeyboardButton("📝 Imtihon testlari")
-    btn4 = types.KeyboardButton("💵 Jarimalar miqdori")
-    markup.add(btn1, btn2)
-    markup.add(btn3, btn4)
+    markup.add("⚠️ Yo'l belgilari", "📚 Qoidalar kitobi")
+    markup.add("📝 Imtihon testlari", "💵 Jarimalar miqdori")
     return markup
 
-# Yo'l belgilari menyusi
 def belgilar_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton("🔴 Taqiqlovchi belgilar")
-    btn2 = types.KeyboardButton("⚠️ Ogohlantiruvchi belgilar")
-    btn3 = types.KeyboardButton("🔹 Imtiyozli belgilar")
-    btn4 = types.KeyboardButton("⬅️ Ortga (Bosh menyu)")
-    markup.add(btn1)
-    markup.add(btn2)
-    markup.add(btn3)
-    markup.add(btn4)
+    markup.add("🔴 Taqiqlovchi belgilar")
+    markup.add("⚠️ Ogohlantiruvchi belgilar")
+    markup.add("🔹 Imtiyozli belgilar")
+    markup.add("⬅️ Ortga (Bosh menyu)")
     return markup
 
 @bot.message_handler(commands=['start'])
@@ -56,38 +47,26 @@ def welcome(message):
 
 @bot.message_handler(content_types=['text'])
 def handle_menu(message):
-    # Asosiy tugmalar
     if message.text == "⚠️ Yo'l belgilari":
         bot.send_message(message.chat.id, "Yo'l belgilari bo'limini tanlang:", reply_markup=belgilar_menu())
         
     elif message.text == "🔴 Taqiqlovchi belgilar":
-        matn = (
-            "**🔴 Taqiqlovchi belgilar (Asosiylari):**\n\n"
-            "• **3.1 - Kirish taqiqlangan (Gisht):** Barcha transport vositalarining kirishini taqiqlaydi.\n"
-            "• **3.2 - Harakatlanish taqiqlangan:** Barcha transport vositalarining harakatlanishini taqiqlaydi.\n"
-            "• **3.24 - Yuqori tezlik cheklangan:** Belgida ko'rsatilganidan ortiq tezlikda harakatlanishni taqiqlaydi.\n"
-            "• **3.27 - To'xtash taqiqlangan:** Transport vositalarining to'xtashi va to'xtab turishini taqiqlaydi."
-        )
-        bot.send_message(message.chat.id, matn, parse_mode="Markdown")
+        # 3.1 G'isht belgisi rasmi va matni
+        photo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Road_sign_3.1.svg/500px-Road_sign_3.1.svg.png"
+        caption = "<b>3.1 - Kirish taqiqlangan ('G'isht')</b>\n\nBarcha transport vositalarining kirishini taqiqlaydi."
+        bot.send_photo(message.chat.id, photo_url, caption=caption, parse_mode="HTML")
         
     elif message.text == "⚠️ Ogohlantiruvchi belgilar":
-        matn = (
-            "**⚠️ Ogohlantiruvchi belgilar (Asosiylari):**\n\n"
-            "• **1.1 - Yo'l o'tkazgich:** Shlagbaumli temir yo'l o'tkazgichiga yaqinlashish.\n"
-            "• **1.22 - Piyodalar o'tish joyi:** Piyodalar o'tish joyiga yaqinlashayotganingizni bildiradi.\n"
-            "• **1.23 - Bolalar:** Yo'lning bolalar muassasalari yonidan o'tgan qismiga yaqinlashish.\n"
-            "• **1.25 - Yo'l ishlari:** Yo mezonida ta'mirlash yoki qurilish ishlari olib borilmoqda."
-        )
-        bot.send_message(message.chat.id, matn, parse_mode="Markdown")
+        # Piyodalar o'tish joyi rasmi va matni
+        photo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Road_sign_1.22.svg/500px-Road_sign_1.22.svg.png"
+        caption = "<b>1.22 - Piyodalar o'tish joyi</b>\n\nPiyodalar o'tish joyiga yaqinlashayotganingiz haqida ogohlantiradi."
+        bot.send_photo(message.chat.id, photo_url, caption=caption, parse_mode="HTML")
 
     elif message.text == "🔹 Imtiyozli belgilar":
-        matn = (
-            "**🔹 Imtiyozli (Avariyaviy) belgilar:**\n\n"
-            "• **2.1 - Asosiy yo'l:** Haydovchiga tartibga solinmagan chorrahalardan birinchi bo'lib o'tish huquqini beradi.\n"
-            "• **2.4 - Yo'l bering:** Haydovchi kesib o'tilayotgan yo'ldan harakatlanayotgan transportga yo'l berishi shart.\n"
-            "• **2.5 - To'xtamay o'tish taqiqlangan (STOP):** To'xtash chizig'i yoki belgi oldida to'xtamasdan harakatlanish taqiqlanadi."
-        )
-        bot.send_message(message.chat.id, matn, parse_mode="Markdown")
+        # STOP belgisi rasmi va matni
+        photo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Road_sign_2.5.svg/500px-Road_sign_2.5.svg.png"
+        caption = "<b>2.5 - To'xtamay o'tish taqiqlangan (STOP)</b>\n\nTo'xtash chizig'i yoki belgi oldida to'xtamasdan harakatlanish taqiqlanadi."
+        bot.send_photo(message.chat.id, photo_url, caption=caption, parse_mode="HTML")
 
     elif message.text == "⬅️ Ortga (Bosh menyu)":
         bot.send_message(message.chat.id, "Bosh menyuga qaytdingiz:", reply_markup=main_menu())
@@ -100,13 +79,12 @@ def handle_menu(message):
         
     elif message.text == "💵 Jarimalar miqdori":
         jarimalar_matni = (
-            "**Asosiy jarimalar miqdori:**\n\n"
-            "• **Xavfsizlik kamari:** 187 500 so'm\n"
-            "• **Telifonda gaplashish:** 1 125 000 so'm\n"
-            "• **Qizil chiroqda o'tish:** 750 000 so'm\n"
-            "• **Tezlikni oshirish (20 km/soatgacha):** 375 000 so'm\n"
-            "• **Mast holatda rulga o'tish:** 9 375 000 so'm va 1.5 yildan 3 yilgacha haydash huquqidan mahrum qilish."
+            "<b>Asosiy jarimalar miqdori:</b>\n\n"
+            "• <b>Xavfsizlik kamari:</b> 187 500 so'm\n"
+            "• <b>Telifonda gaplashish:</b> 1 125 000 so'm\n"
+            "• <b>Qizil chiroqda o'tish:</b> 750 000 so'm\n"
+            "• <b>Tezlikni oshirish:</b> 375 000 so'm"
         )
-        bot.send_message(message.chat.id, jarimalar_matni, parse_mode="Markdown")
+        bot.send_message(message.chat.id, jarimalar_matni, parse_mode="HTML")
 
 bot.infinity_polling()
